@@ -24,6 +24,7 @@ trandDeta ={  #移動座標に対応する角度のデータ
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
 def init_bom_imgs() -> tuple[list[pg.Surface], list[int]]:
     boms = []
     for r in range(1, 11):
