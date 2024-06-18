@@ -56,6 +56,7 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bom_rct):  #衝突判定
+            game_over(screen)
             return "game over"
         screen.blit(bg_img, [0, 0]) 
 
@@ -116,6 +117,26 @@ def check_bound(obj_rct:pg.Rect)-> tuple[bool, bool]:
     if obj_rct.top < 0 or HEIGHT < obj_rct.bottom :  #縦判定
         tate = False
     return yoko, tate
+
+
+def game_over(screen)-> None:
+    sq = pg.Surface((WIDTH, HEIGHT))
+    pg.draw.circle(sq, (255, 255, 255), (0, 0), 0)
+    end_rcts = []
+    end_img = pg.image.load("fig/8.png") 
+    end_rct1 = end_img.get_rect()
+    end_rct1.center = WIDTH+200, HEIGHT/2
+    end_rcts.append(end_rct1)
+    end_rct2 = end_img.get_rect()
+    end_rct2.center = WIDTH-200, HEIGHT/2
+    end_rcts.append(end_rct2)
+    screen.blit(sq, [0, 0])
+    fonto = pg.font.Font(None, 120) 
+    txt = fonto.render("game over", True, (255, 255, 255)) 
+    screen.blit(txt, [WIDTH/2, HEIGHT/2])
+    for rct in end_rcts:
+        screen.blit(end_img, rct)
+    pg.time.wait(5000)  #5秒間表示
 
 
 if __name__ == "__main__":
