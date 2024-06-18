@@ -28,6 +28,7 @@ def main():
     bom.set_colorkey((0, 0, 0))  #背景の四隅を透過させる
     bom_rct = bom.get_rect()  #bomのrect
     bom_rct.center = randint(10, WIDTH-10), randint(10, HEIGHT-10)
+    vx, vy = +5, +5  # 爆弾の横方向速度，縦方向速度
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -45,6 +46,7 @@ def main():
         screen.blit(bom, bom_rct)
         pg.display.update()
         tmr += 1
+        bom_rct.move_ip(vx, vy)
         clock.tick(50)        
 
 
