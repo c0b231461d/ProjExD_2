@@ -11,6 +11,17 @@ DELTA = {  #移動用辞書
     pg.K_LEFT:(-5, 0),
     pg.K_RIGHT:(5, 0),  #カンマを書く癖があるといい
 }
+trandDeta ={  #移動座標に対応する角度のデータ 
+    (0, 0):0,   #初期データ
+    (-5, 0):0,  #←
+    (-5, -5):45,   #左下
+    (0, -5):90,   #↓
+    (5, -5):135,   #右下
+    (5, 0):180,  #→
+    (5, 5):225,  #
+    (0, 5):270,   #↑
+    (-5, 5):315,   #
+}
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -23,9 +34,14 @@ def main():
     kk_rct.center = 900, 400
     clock = pg.time.Clock()
     tmr = 0
-    bom = pg.Surface((20, 20))  #bomを作る大きさの設定
-    pg.draw.circle(bom, (255, 0, 0), (10, 10), 10)  #色半径等の設定
+    # trans = 0 #こうかとんの向きの調整変数[tate, yoko]
+    for r in range(1, 11): 
+        bom = pg.Surface((20*r, 20*r)) 
+        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
     bom.set_colorkey((0, 0, 0))  #背景の四隅を透過させる
+    # bom = pg.Surface((20, 20))  #bomを作る大きさの設定
+    # pg.draw.circle(bom, (255, 0, 0), (10, 10), 10)  #色半径等の設定
+    
     bom_rct = bom.get_rect()  #bomのrect
     bom_rct.center = randint(10, WIDTH-10), randint(10, HEIGHT-10)
     vx, vy = +5, +5  # 爆弾の横方向速度，縦方向速度
@@ -44,6 +60,9 @@ def main():
                 sum_mv[0] += v[0]
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
+        print(sum_mv)
+        # trans = trandDeta[(sum_mv[0], sum_mv[1])]
+        # kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)
         if check_bound(kk_rct)  != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
@@ -56,7 +75,11 @@ def main():
             vx *= -1
         if not tate :  #縦跳ね返り
             vy *= -1
-        clock.tick(50)        
+        clock.tick(50) 
+
+def new_func(sum_mv):
+    trans = trandDeta[tuple(sum_mv)]
+    return trans       
         
         
 def check_bound(obj_rct:pg.Rect)-> tuple[bool, bool]: 
