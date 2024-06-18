@@ -33,6 +33,8 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        if kk_rct.colliderect(bom_rct):  #衝突判定
+            return "game over"
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
@@ -50,9 +52,9 @@ def main():
         tmr += 1
         bom_rct.move_ip(vx, vy)
         yoko, tate = check_bound(bom_rct)
-        if not yoko:
+        if not yoko:  #横の跳ねかえり
             vx *= -1
-        if not tate :
+        if not tate :  #縦跳ね返り
             vy *= -1
         clock.tick(50)        
         
