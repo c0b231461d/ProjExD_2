@@ -42,15 +42,22 @@ def main():
                 sum_mv[0] += v[0]
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct)  != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
         screen.blit(bom, bom_rct)
         pg.display.update()
         tmr += 1
         bom_rct.move_ip(vx, vy)
+        yoko, tate = check_bound(bom_rct)
+        if not yoko:
+            vx *= -1
+        if not tate :
+            vy *= -1
         clock.tick(50)        
         
         
-def chack_bound(obj_rct:pg.Rect)-> tuple[bool, bool]: 
+def check_bound(obj_rct:pg.Rect)-> tuple[bool, bool]: 
     """
     引数:こうかとんRect爆弾Rect
     戻り値:タプル（横判定結果、縦判定結果）
