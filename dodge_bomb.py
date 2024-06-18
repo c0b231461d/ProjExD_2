@@ -27,11 +27,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 def init_bom_imgs() -> tuple[list[pg.Surface], list[int]]:
     boms = []
     for r in range(1, 11):
-        bom = pg.Surface((20*r, 20*r)) 
-        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
-        bom.set_colorkey((0, 0, 0))
+        bom = pg.Surface((20*r, 20*r))  #画面大きさの定義
+        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)  #円大きさの定義
+        bom.set_colorkey((0, 0, 0))  #透過度
         boms.append(bom)
-    accs = [a for a in range(1, 11)]
+    accs = [a for a in range(1, 11)]  #加速度
     return boms, accs
         
 
@@ -56,7 +56,7 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bom_rct):  #衝突判定
-            game_over(screen)
+            game_over(screen)  #gameover判定
             return "game over"
         screen.blit(bg_img, [0, 0]) 
 
@@ -68,33 +68,30 @@ def main():
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
         if trans != trandDeta[(sum_mv[0], sum_mv[1])]:
-            if (sum_mv[0], sum_mv[1]) != (0, 0):
-                trans = trandDeta[(sum_mv[0], sum_mv[1])]
+            if (sum_mv[0], sum_mv[1]) != (0, 0): #向いているときの箇所が違うときの設定
+                trans = trandDeta[(sum_mv[0], sum_mv[1])]  #初期化を無視する判定
                 kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)  #角度の初期化
-                if trans >90  and trans <= 270:
+                if trans >90  and trans <= 270:  #反対を向く際の反転判定
                     #反対向くための処理
                     kk_img = pg.transform.flip(kk_img, False, True)
-                kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)
-        if check_bound(kk_rct)  != (True, True):
+                kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)  #回転処理
+        if check_bound(kk_rct)  != (True, True):  #跳ね返り処理
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
         screen.blit(bom, bom_rct)
         pg.display.update()
         tmr += 1
-        bom_rct.move_ip(avx, avy)
+        bom_rct.move_ip(vx + avx, vy +avy)
         yoko, tate = check_bound(bom_rct)
         if not yoko:  #横の跳ねかえり
             vx *= -1
         if not tate :  #縦跳ね返り
             vy *= -1
-        bom = boms[min(tmr//500, 9)]
-        avx = vx*accs[min(tmr//500, 9)]
+        bom = boms[min(tmr//500, 9)]  #爆弾の大きさ処理
+        avx = vx*accs[min(tmr//500, 9)]  #
         avy = vy*accs[min(tmr//500, 9)]
         clock.tick(50) 
-
-def new_func(sum_mv):
-    trans = trandDeta[tuple(sum_mv)]
-    return trans    
+ 
 
 def bom_change()->tuple:
     boms = []
@@ -122,20 +119,19 @@ def check_bound(obj_rct:pg.Rect)-> tuple[bool, bool]:
 def game_over(screen)-> None:
     sq = pg.Surface((WIDTH, HEIGHT))
     pg.draw.circle(sq, (255, 255, 255), (0, 0), 0)
-    end_rcts = []
-    end_img = pg.image.load("fig/8.png") 
-    end_rct1 = end_img.get_rect()
-    end_rct1.center = WIDTH+200, HEIGHT/2
-    end_rcts.append(end_rct1)
+    sq.set_alpha(50)
+    end_img = pg.image.load("fig/8.png")  #画像のロード
+    end_rct1 = end_img.get_rect()  #rect定義
+    end_rct1.center = WIDTH/2+500, HEIGHT/2  #配置場所
     end_rct2 = end_img.get_rect()
-    end_rct2.center = WIDTH-200, HEIGHT/2
-    end_rcts.append(end_rct2)
+    end_rct2.center = WIDTH/2-500, HEIGHT/2
     screen.blit(sq, [0, 0])
     fonto = pg.font.Font(None, 120) 
     txt = fonto.render("game over", True, (255, 255, 255)) 
-    screen.blit(txt, [WIDTH/2, HEIGHT/2])
-    for rct in end_rcts:
-        screen.blit(end_img, rct)
+    screen.blit(txt, [WIDTH/2-250, HEIGHT/2])
+    screen.blit(end_img, end_rct1)
+    screen.blit(end_img, end_rct2)
+    pg.display.update()  #画面の更新
     pg.time.wait(5000)  #5秒間表示
 
 
