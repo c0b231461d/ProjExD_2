@@ -24,6 +24,16 @@ trandDeta ={  #移動座標に対応する角度のデータ
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+def init_bom_imgs() -> tuple[list[pg.Surface], list[int]]:
+    boms = []
+    for r in range(1, 11):
+        bom = pg.Surface((20*r, 20*r)) 
+        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
+        bom.set_colorkey((0, 0, 0))
+        boms.append(bom)
+    accs = [a for a in range(1, 11)]
+    return boms, accs
+        
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -35,22 +45,18 @@ def main():
     clock = pg.time.Clock()
     tmr = 0
     trans = 0 #こうかとんの向きの調整変数[tate, yoko]
-    for r in range(1, 11): 
-        bom = pg.Surface((20*r, 20*r)) 
-        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
-    bom.set_colorkey((0, 0, 0))  #背景の四隅を透過させる
-    # bom = pg.Surface((20, 20))  #bomを作る大きさの設定
-    # pg.draw.circle(bom, (255, 0, 0), (10, 10), 10)  #色半径等の設定
-    
+    boms, accs = init_bom_imgs()  #爆弾等の初期化設定
+    bom = boms[0]  #爆弾の処理設定
     bom_rct = bom.get_rect()  #bomのrect
     bom_rct.center = randint(10, WIDTH-10), randint(10, HEIGHT-10)
     vx, vy = +5, +5  # 爆弾の横方向速度，縦方向速度
+    avx, avy = 0, 0 # 爆弾の横方向加速度，縦方向加速度
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
-        # if kk_rct.colliderect(bom_rct):  #衝突判定
-        #     return "game over"
+        if kk_rct.colliderect(bom_rct):  #衝突判定
+            return "game over"
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
@@ -60,12 +66,12 @@ def main():
                 sum_mv[0] += v[0]
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
-        print(sum_mv)
         if trans != trandDeta[(sum_mv[0], sum_mv[1])]:
             if (sum_mv[0], sum_mv[1]) != (0, 0):
                 trans = trandDeta[(sum_mv[0], sum_mv[1])]
                 kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)  #角度の初期化
-                if trans >90  and trans < 270:
+                if trans >90  and trans <= 270:
+                    #反対向くための処理
                     kk_img = pg.transform.flip(kk_img, False, True)
                 kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)
         if check_bound(kk_rct)  != (True, True):
@@ -74,19 +80,30 @@ def main():
         screen.blit(bom, bom_rct)
         pg.display.update()
         tmr += 1
-        bom_rct.move_ip(vx, vy)
+        bom_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bom_rct)
         if not yoko:  #横の跳ねかえり
             vx *= -1
         if not tate :  #縦跳ね返り
             vy *= -1
+        bom = boms[min(tmr//500, 9)]
+        avx = vx*accs[min(tmr//500, 9)]
+        avy = vy*accs[min(tmr//500, 9)]
         clock.tick(50) 
 
 def new_func(sum_mv):
     trans = trandDeta[tuple(sum_mv)]
-    return trans       
-        
-        
+    return trans    
+
+def bom_change()->tuple:
+    boms = []
+    for r in range(1, 11): 
+        bom = pg.Surface((20*r, 20*r)) 
+        pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
+        boms.append((bom, pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)))
+    return tuple(boms)
+
+
 def check_bound(obj_rct:pg.Rect)-> tuple[bool, bool]: 
     """
     引数:こうかとんRect爆弾Rect
