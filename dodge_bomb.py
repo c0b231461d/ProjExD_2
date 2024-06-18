@@ -48,6 +48,20 @@ def main():
         tmr += 1
         bom_rct.move_ip(vx, vy)
         clock.tick(50)        
+        
+        
+def chack_bound(obj_rct:pg.Rect)-> tuple[bool, bool]: 
+    """
+    引数:こうかとんRect爆弾Rect
+    戻り値:タプル（横判定結果、縦判定結果）
+    画面内ならTRUE、画面外ならFALSE
+    """
+    yoko, tate = True, True
+    if obj_rct.left < 0 or WIDTH < obj_rct.right:  #横判定
+        yoko = False
+    if obj_rct.top < 0 or HEIGHT < obj_rct.bottom :  #縦判定
+        tate = False
+    return yoko, tate
 
 
 if __name__ == "__main__":
