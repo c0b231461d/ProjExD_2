@@ -12,15 +12,15 @@ DELTA = {  #移動用辞書
     pg.K_RIGHT:(5, 0),  #カンマを書く癖があるといい
 }
 trandDeta ={  #移動座標に対応する角度のデータ 
-    (0, 0):0,   #初期データ
+    (0, 0):0,   #初期データ（推していないときの処理用）
     (-5, 0):0,  #←
-    (-5, -5):45,   #左下
-    (0, -5):90,   #↓
-    (5, -5):135,   #右下
+    (-5, -5):315,   #左上
+    (0, -5):270,   #↑
+    (5, -5):225,   #右上
     (5, 0):180,  #→
-    (5, 5):225,  #
-    (0, 5):270,   #↑
-    (-5, 5):315,   #
+    (5, 5):135,  #左下
+    (0, 5):90,   #↓
+    (-5, 5):45,   #左下
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -34,7 +34,7 @@ def main():
     kk_rct.center = 900, 400
     clock = pg.time.Clock()
     tmr = 0
-    # trans = 0 #こうかとんの向きの調整変数[tate, yoko]
+    trans = 0 #こうかとんの向きの調整変数[tate, yoko]
     for r in range(1, 11): 
         bom = pg.Surface((20*r, 20*r)) 
         pg.draw.circle(bom, (255, 0, 0), (10*r, 10*r), 10*r)
@@ -49,8 +49,8 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
-        if kk_rct.colliderect(bom_rct):  #衝突判定
-            return "game over"
+        # if kk_rct.colliderect(bom_rct):  #衝突判定
+        #     return "game over"
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
@@ -61,8 +61,13 @@ def main():
                 sum_mv[1] += v[1]
         kk_rct.move_ip(sum_mv)
         print(sum_mv)
-        # trans = trandDeta[(sum_mv[0], sum_mv[1])]
-        # kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)
+        if trans != trandDeta[(sum_mv[0], sum_mv[1])]:
+            if (sum_mv[0], sum_mv[1]) != (0, 0):
+                trans = trandDeta[(sum_mv[0], sum_mv[1])]
+                kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)  #角度の初期化
+                if trans >90  and trans < 270:
+                    kk_img = pg.transform.flip(kk_img, False, True)
+                kk_img = pg.transform.rotozoom(kk_img, trans, 1.0)
         if check_bound(kk_rct)  != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
